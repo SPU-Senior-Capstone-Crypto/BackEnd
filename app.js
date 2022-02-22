@@ -11,3 +11,6 @@ app.listen(PORT, '0.0.0.0', () => {
 });
 
 app.use('/api/account', accountRoute);
+
+
+module.exports = app;
