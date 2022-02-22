@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const express = require('express');
 const bodyParser = require('express');
+const pool = require('../modules/db');
 
 const router = express.Router();
 
