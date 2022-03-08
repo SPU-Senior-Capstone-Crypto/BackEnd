@@ -32,14 +32,15 @@ describe("Parity Account Service Tests", () => {
     });
     it ("Should send and retrieve prop id", (done) => {
         chai.request(app)
-        .get('/api/property/123')
+        .get('/api/property/1')
         .end((err, res) => {
-            if (res.text == '123'){
-                console.log('res text hit');
+            let payload = JSON.parse(res.text);
+            if (payload[0].property_id == '1'){
+                //console.log('res text hit');
                 done();
                 return;
             } else {
-                done(new Error('wrong response'));
+                done(new Error(`wrong response: ${res.text}`));
             }
         });
     });
