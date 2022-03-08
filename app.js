@@ -1,19 +1,18 @@
-const express = require('express');
+var express = require('express');
 require('dotenv').config();
-const PORT = process.env.port || 8080;
-
+const PORT = process.env.port || 80;
 
 const accountRoute = require('./routes/account');
 const propInfoRoute = require('./routes/propertyInfo');
 
-const app = express();
+var cors = require('cors');
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Listening on port: ${PORT}`);
-});
+var app = express();
+app.use(cors());
 
 app.use('/api/account', accountRoute);
 app.use('/api/property', propInfoRoute);
 
-
-module.exports = app;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Listening on port: ${PORT}`);
+});

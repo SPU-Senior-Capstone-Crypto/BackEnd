@@ -4,6 +4,7 @@ const router = express.Router();
 const bodyParser = require('body-parser')
 const pool = require('../modules/db');
 
+
 // retrieves property with given id (/api/property/<prop_id>)
 router.get('/:id', (req, res, next) => {
     if (req.params.id){
@@ -18,7 +19,7 @@ router.get('/:id', (req, res, next) => {
                 } else {
                         // returs 404 if length = 0, or if no mathcing id
                     if (result.length == 0){
-                        res.status(404).send();
+                        res.status(404).send("not hit");
                     } else {
                         // returns stringified result
                         // returns in response.text
