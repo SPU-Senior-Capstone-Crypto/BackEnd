@@ -1,6 +1,6 @@
 var express = require('express');
 require('dotenv').config();
-const PORT = process.env.port || 80;
+const PORT = process.env.port || 3001;
 
 const accountRoute = require('./routes/account');
 const propInfoRoute = require('./routes/propertyInfo');
