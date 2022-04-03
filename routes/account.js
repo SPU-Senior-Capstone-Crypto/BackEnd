@@ -56,27 +56,61 @@ router.post('/log', urlParser, (req, res, next) => {
     return;
 });
 
+/**
+ * put route for creating a user account in the db
+ * payload is {
+ *  email:<sting>
+ *  paswd:<string>
+ *  first:<string>
+ *  last:<string>
+ * }
+ */
 router.put('/create', urlParser, (req, res, next) => {
     let payload = req.body;
     user_exist(payload.email, (result) => {
-        if (result){
+        if (result){    // email already exists
             res.send('503');
-        } else {
+        } else {        // create user
+            if (payload.pswd){
+                bcrpyt.genSalt(rounds, (err, salt) => { // gen salt
+                    bcrpyt.hash(payload.pswd, salt, (err, hash) => {    // gen hash of text password
+                        if (error){
+                            res.sendStatus(500);    // if error on hashing
+                        } else {
+                            let query = `INSERT INTO user (first_name, last_name, email, pswd) VALUES (
+                                "${payload.first}",
+                                "${payload.last}",
+                                "${payload.email}",
+                                "${payload.pwsd}"
+                            );`;
+                            // TODO
+                            // execute query and return 200 if added
+                        }
+                    })
+                });
+            }
+            
             res.send('200');
         }
     })
 });
 
+/**
+ * Verifies if user email exists in db.
+ * Calls callback with true if exists and false if otherwise
+ * @param {string} email email for user account
+ * @param {Callback} fn callback function 
+ */
 function user_exist (email, fn) {
     let query = `SELECT COUNT(email) FROM user WHERE email = '${email}'`;
-    pool.query(query, (error, result, fields) => {
-                if (error || result[0]['COUNT(email)'] > 0){
+    pool.query(query, (error, result, fields) => {  // query db
+                if (error || result[0]['COUNT(email)'] > 0){    //  > 0 = exists
                     fn(true);
                 } else {
                     fn(false);
                 }
                 
-            })
+            });
 }
 
 
