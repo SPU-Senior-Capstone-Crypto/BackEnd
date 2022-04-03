@@ -36,12 +36,12 @@ router.post('/log', urlParser, (req, res, next) => {
         if (error){
             res.send(error);
         }
-        if (result.length === 0){
+        if (result.length === 0){       // if no mathcing email for an acount
             // No valid username
             res.send('No valid username');
-        } else {
+        } else {                        // if mathcing email check pswd
             dbUser = result[0];
-            bcrpyt.compare(payload.pass, dbUser.pswd, (err, result) => {
+            bcrpyt.compare(payload.pass, dbUser.pswd, (err, result) => {    // compares the pswd hash and text given
                 if (result){
                     res.send(result)
                     // Create user sessions
@@ -55,6 +55,29 @@ router.post('/log', urlParser, (req, res, next) => {
     });
     return;
 });
+
+router.put('/create', urlParser, (req, res, next) => {
+    let payload = req.body;
+    user_exist(payload.email, (result) => {
+        if (result){
+            res.send('503');
+        } else {
+            res.send('200');
+        }
+    })
+});
+
+function user_exist (email, fn) {
+    let query = `SELECT COUNT(email) FROM user WHERE email = '${email}'`;
+    pool.query(query, (error, result, fields) => {
+                if (error || result[0]['COUNT(email)'] > 0){
+                    fn(true);
+                } else {
+                    fn(false);
+                }
+                
+            })
+}
 
 
 module.exports = router;
