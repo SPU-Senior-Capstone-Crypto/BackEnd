@@ -6,9 +6,10 @@ const bcrpyt = require('bcrypt');
 const rounds = 10;
 
 
-
+// Router object for /api/account
 const router = express.Router();
 
+// middel ware to parse bodies as JSON objects
 const urlParser = bodyParser.urlencoded({extended:false});
 
 router.get('/', (req, res, next) => {
@@ -24,6 +25,37 @@ router.get('/', (req, res, next) => {
     //         }
     //     })
     // })
+});
+
+/**
+ * Deletes a user's account
+ * Verifies email. id, and pswd
+ * Info is sent in body
+ */
+router.delete('/', urlParser, (req, res, next) => {
+    let payload = req.body;
+    getAccount = `SELECT * FROM user WHERE email = '${payload.email}'`;
+    pool.query(getAccount, (error, result, fields) => {     // retrieve account details
+        if (error){
+            res.sendStatus(500);    // db error
+        } else {
+            let dbUser = result[0];
+            bcrpyt.compare(payload.pswd, dbUser.pswd, (err, match) => {    // check pswds
+                if (match){    // pswd match -> delete account
+                    let deleteQuery = `DELETE FROM user WHERE user_id = '${dbUser.user_id}';`
+                    pool.query(deleteQuery, (error, result, fields) => {
+                        if (error) {
+                            res.sendStatus(500);    // db error
+                        } else {
+                            res.sendStatus(200);    // delete account
+                        }
+                    });
+                } else {
+                    res.sendStatus(500) // wrong passwords
+                }
+            });
+        }
+    });
 });
 
 

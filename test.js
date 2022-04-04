@@ -64,12 +64,29 @@ describe("Parity Account Service Tests", () => {
         .set('content-type', 'application/x-www-form-urlencoded')
         .send(data)
         .end((err, res) => {
-            console.log(res.text);
             if (res.statusCode === 409){
                 done();
                 return;
             } else {
                 done(new Error(`wrong response ${res.text}`));
+            }
+        });
+    });
+    it ('delete test account form db', (done) => {
+        let data = {
+            email : 'testEmail@spu.edu',
+            pswd : 'testPassword'
+        }
+        chai.request(app)
+        .delete('/api/account/')
+        .set('content-type', 'application/x-www-form-urlencoded')
+        .send(data)
+        .end((err, res) => {
+            if (res.statusCode === 200){
+                done();
+                return;
+            } else {
+                done(new Error(`Error in delete account${err}`));
             }
         });
     });
