@@ -33,7 +33,10 @@ describe("Parity Account Service Tests", () => {
     });
     it ("should verify the creation of an account", (done) => {
         let data = {
-            email : 'rgrasue@spu.edu'
+            first : 'testFirst',
+            last : 'testLast',
+            email : 'testEmail@spu.edu',
+            pswd : 'testPassword'
         }
         chai.request(app)
         .put('/api/account/create')
@@ -41,7 +44,28 @@ describe("Parity Account Service Tests", () => {
         .send(data)
         .end((err, res) => {
             console.log(res.text);
-            if (res.text === '200'){
+            if (res.statusCode === 200){
+                done();
+                return;
+            } else {
+                done(new Error(`wrong response ${res.text}`));
+            }
+        });
+    });
+    it ("should reject the creation of an account due to duplicate email", (done) => {
+        let data = {
+            first : 'testFirst',
+            last : 'testLast',
+            email : 'testEmail@spu.edu',
+            pswd : 'testPassword'
+        }
+        chai.request(app)
+        .put('/api/account/create')
+        .set('content-type', 'application/x-www-form-urlencoded')
+        .send(data)
+        .end((err, res) => {
+            console.log(res.text);
+            if (res.statusCode === 409){
                 done();
                 return;
             } else {

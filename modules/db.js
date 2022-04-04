@@ -11,7 +11,7 @@ const pool = mysql.createPool({
 });
 
 // Open pooled connection to DB
-pool.getConnection((error, connectio) => {
+pool.getConnection((error, connection) => {
     if (error){ // if no success
         console.log(error);
     } else { // if success

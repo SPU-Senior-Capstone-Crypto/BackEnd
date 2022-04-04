@@ -58,41 +58,45 @@ router.post('/log', urlParser, (req, res, next) => {
 
 /**
  * put route for creating a user account in the db
- * payload is {
- *  email:<sting>
- *  paswd:<string>
- *  first:<string>
- *  last:<string>
- * }
+ * payload is   {
+*                   first:<string>
+*                   last:<string>
+*                   email:<sting>
+*                   paswd:<string>
+*               }
  */
 router.put('/create', urlParser, (req, res, next) => {
     let payload = req.body;
     user_exist(payload.email, (result) => {
         if (result){    // email already exists
-            res.send('503');
+            res.sendStatus(409);
         } else {        // create user
             if (payload.pswd){
                 bcrpyt.genSalt(rounds, (err, salt) => { // gen salt
                     bcrpyt.hash(payload.pswd, salt, (err, hash) => {    // gen hash of text password
-                        if (error){
+                        if (err) {
                             res.sendStatus(500);    // if error on hashing
                         } else {
-                            let query = `INSERT INTO user (first_name, last_name, email, pswd) VALUES (
-                                "${payload.first}",
-                                "${payload.last}",
-                                "${payload.email}",
-                                "${payload.pwsd}"
-                            );`;
-                            // TODO
+                            let query = `INSERT INTO user (first_name, last_name, email, pswd) VALUES (` +
+                                `'${payload.first}',`+
+                                `'${payload.last}',`+
+                                `'${payload.email}',`+
+                                `'${hash}');`;
                             // execute query and return 200 if added
+                            pool.query(query, (err, result, fields) => {
+                                console.log('hit')
+                                if (err) {
+                                    res.sendStatus(500);    // if general error in sql statement/execution
+                                } else {
+                                    res.sendStatus(200);    //success
+                                }
+                            });
                         }
-                    })
+                    });
                 });
             }
-            
-            res.send('200');
         }
-    })
+    });
 });
 
 /**
