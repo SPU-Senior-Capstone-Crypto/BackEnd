@@ -2,6 +2,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const app = require('./app');
 const pool = require('./modules/db');
+const Sesh = require('./modules/session');
 
 chai.use(chaiHttp);
 chai.should();
@@ -10,10 +11,12 @@ describe("DataBase Connection Test", () => {
     it("Should establish connection with database", (done) => {
         pool.getConnection((err, connection)=>{
             if (err){
-                done(error);
+                done(err);
+            } else {
+                done();
             }
         });
-        done();
+        
     });
 });
 
@@ -87,6 +90,22 @@ describe("Parity Account Service Tests", () => {
                 return;
             } else {
                 done(new Error(`Error in delete account${err}`));
+            }
+        });
+    });
+});
+
+describe('Test the Session capabilities.', () => {
+    let Session = new Sesh(1, 'rgraue@spu.edu');
+    it ('Should simulate the lifecycle of a session', (done) => {
+        Session.createSession();
+        Session.getSession((ssid) => {
+            console.log(ssid);
+            if (typeof ssid == "number"){
+                Session.deleteSession(ssid);
+                done();
+            } else {
+                done(new Error("Wrong ssid"));
             }
         });
     });
