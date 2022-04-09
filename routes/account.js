@@ -116,7 +116,6 @@ router.put('/create', urlParser, (req, res, next) => {
                                 `'${hash}');`;
                             // execute query and return 200 if added
                             pool.query(query, (err, result, fields) => {
-                                console.log('hit')
                                 if (err) {
                                     res.sendStatus(500);    // if general error in sql statement/execution
                                 } else {
