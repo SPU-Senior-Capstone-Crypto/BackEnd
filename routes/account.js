@@ -148,5 +148,50 @@ function user_exist (email, fn) {
             });
 }
 
+/**
+ * Get users balance from the user_id
+ */
+router.get('/balance', urlParser, (req, res, next) => {
+    let payload = req.body;
+    let query = `   SELECT balance
+                    FROM   USER
+                    WHERE  user_id = '${payload.user_id}' `;
+
+    pool.query(query, (err, result, fields) => {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else if (result === 0) {
+            res.send("Not a valid user");
+        } else {
+            res.send(result);
+        }
+    });
+});
+
+/**
+ * Get users portfolio from the database
+ */
+ router.get('/portfolio', urlParser, (req, res, next) => {
+    let payload = req.body;
+    let query = `   SELECT *
+                    FROM   property
+                        LEFT JOIN TRANSACTION
+                                ON property_id = transaction_property_id
+                    WHERE  TRANSACTION.user_id = '${payload.user_id}'
+                    GROUP  BY property_id `;
+
+    pool.query(query, (err, result, fields) => {
+        if (err) {
+            console.log(err);
+            res.send(err);
+        } else if (result === 0) {
+            console.log("No properties found with user_id: " + `${payload.user_id}`)
+            res.send("No properties found with user_id: " + `${payload.user_id}`);
+        } else {
+            res.send(result);
+        }
+    });
+});
 
 module.exports = router;
