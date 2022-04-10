@@ -5,6 +5,10 @@ const bodyParser = require('body-parser')
 const pool = require('../modules/db');
 
 
+router.get('/', (req, res, next) => {
+    res.sendStatus(302);
+});
+
 // retrieves property with given id (/api/property/<prop_id>)
 router.get('/:id', (req, res, next) => {
     if (req.params.id){
