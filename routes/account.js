@@ -12,6 +12,8 @@ const router = express.Router();
 // middel ware to parse bodies as JSON objects
 const urlParser = bodyParser.urlencoded({extended:false});
 
+const jsonParser = bodyParser.json();
+
 router.get('/', (req, res, next) => {
     let query = 'SELECT * FROM user;'
     res.send("hit");
@@ -32,7 +34,7 @@ router.get('/', (req, res, next) => {
  * Verifies email. id, and pswd
  * Info is sent in body
  */
-router.delete('/', urlParser, (req, res, next) => {
+router.delete('/', jsonParser, (req, res, next) => {
     let payload = req.body;
     getAccount = `SELECT * FROM user WHERE email = '${payload.email}'`;
     pool.query(getAccount, (error, result, fields) => {     // retrieve account details
@@ -94,10 +96,10 @@ router.post('/log', urlParser, (req, res, next) => {
 *                   first:<string>
 *                   last:<string>
 *                   email:<sting>
-*                   paswd:<string>
+*                   pswd:<string>
 *               }
  */
-router.put('/create', urlParser, (req, res, next) => {
+router.put('/create', jsonParser, (req, res, next) => {
     let payload = req.body;
     user_exist(payload.email, (result) => {
         if (result){    // email already exists
