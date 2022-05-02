@@ -18,16 +18,6 @@ const jsonParser = bodyParser.json();
 router.get('/', (req, res, next) => {
     let query = 'SELECT * FROM user;'
     res.send("hit");
-    // pool.getConnection((err, connection) => {
-    //     connection.query(query, (error, result, fields) => {
-    //         connection.release();
-    //         if (error){
-    //             console.log(error);
-    //         } else {
-    //             //console.log(result);
-    //         }
-    //     })
-    // })
 });
 
 /**
