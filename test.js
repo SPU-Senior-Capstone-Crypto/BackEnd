@@ -100,7 +100,6 @@ describe('Test the Session capabilities.', () => {
     it ('Should simulate the lifecycle of a session', (done) => {
         Session.createSession();
         Session.getSession((ssid) => {
-            console.log(ssid);
             if (typeof ssid == "number"){
                 Session.deleteSession(ssid);
                 done();
@@ -109,4 +108,34 @@ describe('Test the Session capabilities.', () => {
             }
         });
     });
-})
+});
+
+describe('Test Transactions', () => {
+    let tBody = {
+        shares:10,
+        value:.1,
+        hash:"testHash",
+        sender:"testSender",
+        recipient:"testRecipient",
+        property_id:1
+    }
+    it("Should generate transaction", (done) => {
+        let Session = new Sesh(1, 'rgraue@spu.edu');
+        Session.createSession();
+        Session.getSession( (ssid) => {
+            tBody.ssid = ssid;
+            chai.request(app)
+            .post('/api/transaction')
+            .set('Content-type', 'application/json')
+            .send(JSON.stringify(tBody))
+            .end( (err, res) => {
+                Session.deleteSession(ssid);
+                if(res.statusCode == 200){
+                    done();
+                } else {
+                    done(new Error(`${err}`));
+                }
+            });
+        });
+    });
+});
