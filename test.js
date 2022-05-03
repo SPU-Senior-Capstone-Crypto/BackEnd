@@ -43,8 +43,8 @@ describe("Parity Account Service Tests", () => {
         }
         chai.request(app)
         .put('/api/account/create')
-        .set('content-type', 'application/x-www-form-urlencoded')
-        .send(data)
+        .set('content-type', 'application/json')
+        .send(JSON.stringify(data))
         .end((err, res) => {
             console.log(res.text);
             if (res.statusCode === 200){
@@ -64,8 +64,8 @@ describe("Parity Account Service Tests", () => {
         }
         chai.request(app)
         .put('/api/account/create')
-        .set('content-type', 'application/x-www-form-urlencoded')
-        .send(data)
+        .set('content-type', 'application/json')
+        .send(JSON.stringify(data))
         .end((err, res) => {
             if (res.statusCode === 409){
                 done();
@@ -82,8 +82,8 @@ describe("Parity Account Service Tests", () => {
         }
         chai.request(app)
         .delete('/api/account/')
-        .set('content-type', 'application/x-www-form-urlencoded')
-        .send(data)
+        .set('content-type', 'application/json')
+        .send(JSON.stringify(data))
         .end((err, res) => {
             if (res.statusCode === 200){
                 done();
@@ -109,4 +109,4 @@ describe('Test the Session capabilities.', () => {
             }
         });
     });
-});
+})

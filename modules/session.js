@@ -11,7 +11,7 @@ class Session {
      * Creates a session object and creates on in DB
      * uid and email saved in cookie
      */
-    constructor(uid, email){
+    constructor(uid = -1, email = ''){
         this.uid = uid
         this.email = email
     }
@@ -51,21 +51,21 @@ class Session {
      * @param {callback} fn callback function to interact with it being a valid session or not
      */
     verify (ssid, fn) {
-        if (this.isLogin === false){   // if not logged in already. ( set from createSession() )
-            let query = `Select COUNT(ssid) AS c FROM sessions WHERE ssid = ${ssid};`;
-            pool.query(query, (error, result, fields) => {
-                if (error){
-                    // TODO
-                    // handle error
+
+        let query = `Select COUNT(ssid) AS c FROM sessions WHERE ssid = ${ssid};`;
+        pool.query(query, (error, result, fields) => {
+            if (error){
+                // TODO
+                // handle error
+            } else {
+                if (result[0].c > 0){       // if ssid exists in sesh db
+                    fn(true);
                 } else {
-                    if (result[0].c > 0){       // if ssid exists in sesh db
-                        fn(true);
-                    } else {
-                        fn(false);
-                    }
+                    fn(false);
                 }
-            });
-        }
+            }
+        });
+        
     }
 
     /**

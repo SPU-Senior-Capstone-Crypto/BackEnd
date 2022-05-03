@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const pool = require('../modules/db');
 const bcrpyt = require('bcrypt');
+const Sessions = require('../modules/session');
 const rounds = 10;
 
 
@@ -12,19 +13,11 @@ const router = express.Router();
 // middel ware to parse bodies as JSON objects
 const urlParser = bodyParser.urlencoded({extended:false});
 
+const jsonParser = bodyParser.json();
+
 router.get('/', (req, res, next) => {
     let query = 'SELECT * FROM user;'
     res.send("hit");
-    // pool.getConnection((err, connection) => {
-    //     connection.query(query, (error, result, fields) => {
-    //         connection.release();
-    //         if (error){
-    //             console.log(error);
-    //         } else {
-    //             //console.log(result);
-    //         }
-    //     })
-    // })
 });
 
 /**
@@ -32,7 +25,7 @@ router.get('/', (req, res, next) => {
  * Verifies email. id, and pswd
  * Info is sent in body
  */
-router.delete('/', urlParser, (req, res, next) => {
+router.delete('/', jsonParser, (req, res, next) => {
     let payload = req.body;
     getAccount = `SELECT * FROM user WHERE email = '${payload.email}'`;
     pool.query(getAccount, (error, result, fields) => {     // retrieve account details
@@ -61,7 +54,15 @@ router.delete('/', urlParser, (req, res, next) => {
 
 // Check if user pass and email match.
 // true if yes, false if no
-router.post('/log', urlParser, (req, res, next) => {
+/**
+ * POST login route
+ * Creates session and returns session cookie
+ * payload = {
+ *      email:
+ *      pswd:
+ * }
+ */
+router.post('/log', jsonParser, (req, res, next) => {
     let payload = req.body;
     query = `SELECT * FROM user WHERE email = '${payload.email}' `;
     pool.query(query, (error, result, fields) => {
@@ -73,14 +74,21 @@ router.post('/log', urlParser, (req, res, next) => {
             res.send('No valid username');
         } else {                        // if mathcing email check pswd
             dbUser = result[0];
-            bcrpyt.compare(payload.pass, dbUser.pswd, (err, result) => {    // compares the pswd hash and text given
-                if (result){
-                    res.send(result)
+            bcrpyt.compare(payload.pswd, dbUser.pswd, (err, r) => {    // compares the pswd hash and text given
+                if (r){    // result == true if passwords match
                     // Create user sessions
+                    let sesh = new Sessions(dbUser.user_id, dbUser.email);
+                    sesh.createSession();
+                    sesh.getSession( (ssid) => {    // retrieve and send ssid
+                        if (ssid) {
+                            res.send(`${ssid}`);
+                        } else {
+                            res.sendStatus(504);
+                        }
+                    });
                 } else {
                     res.send("Incorrect Login info");
                 }
-                
                 return;
             });
         }
@@ -94,10 +102,10 @@ router.post('/log', urlParser, (req, res, next) => {
 *                   first:<string>
 *                   last:<string>
 *                   email:<sting>
-*                   paswd:<string>
+*                   pswd:<string>
 *               }
  */
-router.put('/create', urlParser, (req, res, next) => {
+router.put('/create', jsonParser, (req, res, next) => {
     let payload = req.body;
     user_exist(payload.email, (result) => {
         if (result){    // email already exists
@@ -126,6 +134,33 @@ router.put('/create', urlParser, (req, res, next) => {
                     });
                 });
             }
+        }
+    });
+});
+
+/**
+ * verifies if session is valid.
+ */
+router.post('/verify', jsonParser, (req, res, next) => {
+    let payload = req.body;
+    let sesh = new Sessions();
+    sesh.verify(payload.ssid, (result) => {
+        if (result){
+            res.sendStatus(200);
+        } else {
+            res.sendStatus(404);
+        }
+    })
+});
+
+router.post('/logout', jsonParser, (req, res, next) => {
+    let payload = req.body;
+    let query = `DELETE FROM sessions WHERE ssid = ${payload.ssid};`
+    pool.query(query, (error, result, fields) => {
+        if (error){
+            res.sendStatus(500);
+        } else {
+            res.sendStatus(200);
         }
     });
 });
