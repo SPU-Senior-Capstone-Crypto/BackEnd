@@ -22,6 +22,7 @@ const jsonParser = bodyParser.json();
  */
 router.post('/', jsonParser, (req, res, next) => {
     let payload = req.body;
+    console.log("payload", payload);
     let sesh = new Session();
     sesh.getUser( payload.ssid, (uid) => {
         payload.uid = uid;

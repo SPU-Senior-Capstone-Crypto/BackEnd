@@ -119,6 +119,7 @@ describe('Test Transactions', () => {
         recipient:"testRecipient",
         property_id:1
     }
+
     it("Should generate transaction", (done) => {
         let Session = new Sesh(1, 'rgraue@spu.edu');
         Session.createSession();
@@ -127,7 +128,7 @@ describe('Test Transactions', () => {
             chai.request(app)
             .post('/api/transaction')
             .set('Content-type', 'application/json')
-            .send(JSON.stringify(tBody))
+            .send(tBody)
             .end( (err, res) => {
                 Session.deleteSession(ssid);
                 if(res.statusCode == 200){
