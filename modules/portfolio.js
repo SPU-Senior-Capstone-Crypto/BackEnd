@@ -1,4 +1,4 @@
-
+const pool = require("./db");
 
 class Portfolio {
 
@@ -83,28 +83,147 @@ class Portfolio {
     //     }
     // ]
 
-    getChart () {
-        let r = {}
-        //console.log(this.data[0].date.getMonth());
-        let range = this.#monthSort();
+    /**
+     * Generates the data for a line chart
+     * @param {callback} fn callback function
+     */
+    createChart (fn) {
+        let properties = this.getProperties();
 
-        return range;
+        let s = ""
+        for (let i in properties){
+            s += properties[i] + ",";
+        }
+
+        s = s.slice(0,-1);
+
+
+        let query = `SELECT * FROM price_history WHERE property_id in (${s})`;
+
+        pool.query(query, (err, res, fields) => {
+            if (err){
+                fn({err:true});
+            } else {
+                let r = {};
+                let range = this.#monthSort();
+                
+                let data = this.#calcHistory(range, res);
+
+                fn(data);
+            }
+        });
+        
     }
 
+    /**
+     * gets all property id's owned by user
+     * @returns array of property_id's owned by profile
+     */
+    getProperties () {
+        let properties =  [];
+        for (let i in this.data){
+            let p = this.data[i].property_id
+            if (!properties.includes(p)){
+                properties.push(p);
+            }
+        }
+
+        return properties;
+    }
+
+    /**
+     * Calcualtes the historical value of user's protfolio 
+     * uses transactions and historical data
+     * @param {object} range organized transactional data
+     * @param {array} history historical pricing for properties     
+     * @returns array of finacial records for points on chart
+     */
+    #calcHistory (range, history) {
+        let props = this.getProperties();
+        let r = {};
+
+        // initalize JSON with list of properties
+        for (let i in props){
+            r[props[i]] = {
+                shares : 0  // init with no shares owned
+            }
+        }
+        let x = 0;
+        // iter history to find time that matches with transactions
+        for (let i in history){
+            // t = MM-YYYY of property history entry
+            let t = '' +  history[i].date.getMonth() + '-' + history[i].date.getFullYear();
+            let p = history[i].property_id;
+
+            //finds given transactions in the same month and with same property
+            for (let j in range[t]){
+                if (range[t][j].property_id == p){
+                    r[p].shares += range[t][j].shares;   // adds shares to property 
+                }
+            }
+            // current balance = shares * price at time
+            x =  r[p].shares * parseInt(history[i].value, 16) / 1e18
+            r[p][t] = x;
+        }
+
+        let data = [];
+        let index = 0;
+
+        // sum value of all properties by time series
+        for (let i in r){
+            index = 0;
+            for (let j in r[i]){
+                if (j != 'shares'){
+                    if (index >= data.length){  // if first time through array
+                        data.push(r[i][j]);
+                        index++;
+                    } else {
+                        data[index] += r[i][j]; // add to existing total
+                        index++;
+                    }
+                }
+            }
+            
+        }
+        return data;
+    }
+
+    // 50000000000000000
+    // 60000000000000000
+    // 75000000000000000
+    // 80000000000000000
+    // 90000000000000000
+    // 100000000000000000
+
+    // 50000000000000000,
+    // 50000000000000000,
+    // 125000000000000000,
+    // 3965000000000000000,
+    // 12605000000000000000,
+    // 22205000000000000000
+
+    /**
+     * Organizes transaction in a list starting at the first transaction through today
+     * Transactions are assigned under their repsective month/year of purchase.
+     * @returns organized list of transactions by date
+     */
     #monthSort () {
         let range = {};
         let curr = new Date(this.data[0].date);
         let end = new Date();
+        // iterate from first t to today by month
+        // create an entry in range for each month/year combo passed
         while (curr <= end){
             let t = '' + curr.getMonth() + "-" + curr.getFullYear()
             range[t] = [];
-            if (curr.getMonth() == 11){
+            if (curr.getMonth() == 11){ // if December
                 curr.setMonth(0);
                 curr.setYear(curr.getFullYear() + 1);
             } else {
                 curr.setMonth(curr.getMonth() + 1);
             }
         }
+        // allocate transaactions under their respective month/year
         for (let i in this.data){
             let t = '' + this.data[i].date.getMonth() + "-" + this.data[i].date.getFullYear()
             if (!range[t]){ // if new month
