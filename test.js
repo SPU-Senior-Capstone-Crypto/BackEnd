@@ -153,7 +153,7 @@ describe("Test Portfolio", () => {
                     done(new Error(err))
                 }
                 let p = new Portfolio(res);
-                let b = p.getBalance();
+                let b = p.getChart();
                 console.log(b);
                 done();
             }
