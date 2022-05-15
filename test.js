@@ -101,14 +101,23 @@ describe('Test the Session capabilities.', () => {
     it ('Should simulate the lifecycle of a session', (done) => {
         Session.createSession();
         Session.getSession((ssid) => {
+            chai.request(app)
+            .post('/api/account/chart')
+            .set('content-type', 'application/json')
+            .send(JSON.stringify({ssid:ssid}))
+            .end((err, res) => {
+                console.log(res.text);
+            });
             if (typeof ssid == "number"){
-                Session.deleteSession(ssid);
                 done();
             } else {
                 done(new Error("Wrong ssid"));
             }
         });
     });
+    Session.getSession((ssid) => {
+        Session.deleteSession(ssid);
+    })
 });
 
 // describe('Test Transactions', () => {
@@ -142,22 +151,22 @@ describe('Test the Session capabilities.', () => {
 //     });
 // });
 
-describe("Test Portfolio", () => {
-    it("should get balance", (done) => {
-        pool.query(
-            `SELECT * FROM transaction
-            INNER JOIN property USING (property_id)
-            HAVING user_id = 1;`,
-            (err, res, fields) => {
-                if (err){
-                    done(new Error(err))
-                }
-                let p = new Portfolio(res);
-                let b = p.createChart((r) => {
-                    console.log(JSON.stringify(r));
-                });
-                done();
-            }
-        );
-    });
-});
+// describe("Test Portfolio", () => {
+//     it("should get balance", (done) => {
+//         pool.query(
+//             `SELECT * FROM transaction
+//             INNER JOIN property USING (property_id)
+//             HAVING user_id = 1;`,
+//             (err, res, fields) => {
+//                 if (err){
+//                     done(new Error(err))
+//                 }
+//                 let p = new Portfolio(res);
+//                 let b = p.createChart((r) => {
+//                     console.log(JSON.stringify(r));
+//                 });
+//                 done();
+//             }
+//         );
+//     });
+// });

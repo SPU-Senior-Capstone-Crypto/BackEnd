@@ -123,8 +123,7 @@ class Portfolio {
                         ]
                     }
                     
-                }
-                
+                }   
                 fn(r);
             }
         }); 

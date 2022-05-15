@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const pool = require('../modules/db');
 const bcrpyt = require('bcrypt');
 const Sessions = require('../modules/session');
+const Portfolio = require('../modules/portfolio');
 const rounds = 10;
 
 
@@ -162,6 +163,26 @@ router.post('/logout', jsonParser, (req, res, next) => {
         } else {
             res.sendStatus(200);
         }
+    });
+});
+
+router.post('/chart', jsonParser, (req, res, next) => {
+    let payload = req.body;
+    let sesh = new Sessions();
+    sesh.getUser(payload.ssid, (uid) => {
+        let query =     `SELECT * FROM transaction
+                        INNER JOIN property USING (property_id)
+                        HAVING user_id = ${uid}`;
+        pool.query(query, (error, result, fields) => {
+            if (error){
+                res.sendStatus(500);
+            } else {
+                let portfolio = new Portfolio(result);
+                portfolio.createChart( (data) => {
+                    res.send(data);
+                });
+            }
+        });
     });
 });
 
