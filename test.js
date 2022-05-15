@@ -154,7 +154,7 @@ describe("Test Portfolio", () => {
                 }
                 let p = new Portfolio(res);
                 let b = p.createChart((r) => {
-                    console.log(r);
+                    console.log(JSON.stringify(r));
                 });
                 done();
             }

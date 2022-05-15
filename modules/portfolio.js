@@ -104,26 +104,41 @@ class Portfolio {
             if (err){
                 fn({err:true});
             } else {
-                let r = {};
-                let range = this.#monthSort();
-                
-                let data = this.#calcHistory(range, res);
+                let range = this.#monthSort(); // time range of all transactions for user
+                let data = this.#calcHistory(range, res);   // data for chart (balance vs time)
+                let labels = [];
+                for (let i in range){
+                    labels.push(i);
+                }
 
-                fn(data);
+                let r = {
+                    type : 'line',
+                    data : {
+                        labels : labels,
+                        datasets : [
+                            {
+                                label : 'money over time',
+                                data : data
+                            }
+                        ]
+                    }
+                    
+                }
+                
+                fn(r);
             }
-        });
-        
+        }); 
     }
 
     /**
      * gets all property id's owned by user
-     * @returns array of property_id's owned by profile
+     * @returns array (set) of property_id's owned by profile
      */
     getProperties () {
         let properties =  [];
         for (let i in this.data){
             let p = this.data[i].property_id
-            if (!properties.includes(p)){
+            if (!properties.includes(p)){   // if p already exists
                 properties.push(p);
             }
         }
@@ -223,6 +238,7 @@ class Portfolio {
                 curr.setMonth(curr.getMonth() + 1);
             }
         }
+        range['' + curr.getMonth() + "-" + curr.getFullYear()] = [];
         // allocate transaactions under their respective month/year
         for (let i in this.data){
             let t = '' + this.data[i].date.getMonth() + "-" + this.data[i].date.getFullYear()
