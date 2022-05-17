@@ -106,7 +106,7 @@ describe('Test the Session capabilities.', () => {
             .set('content-type', 'application/json')
             .send(JSON.stringify({ssid:ssid}))
             .end((err, res) => {
-                console.log(res.text);
+                //console.log(res.text);
             });
             if (typeof ssid == "number"){
                 done();
@@ -115,41 +115,43 @@ describe('Test the Session capabilities.', () => {
             }
         });
     });
+    // fix for parallel session interactions
     Session.getSession((ssid) => {
         Session.deleteSession(ssid);
     })
 });
 
-// describe('Test Transactions', () => {
-//     let tBody = {
-//         shares:10,
-//         value:"0x38D7EA4C68000",
-//         hash:"testHash",
-//         sender:"testSender",
-//         recipient:"testRecipient",
-//         property_id:1
-//     }
+describe('Test Transactions', () => {
+    let tBody = {
+        shares:-10,
+        value:"0x38D7EA4C68000",
+        hash:"testHash",
+        sender:"testSender",
+        recipient:"testRecipient",
+        property_id:1
+    }
 
-//     it("Should generate transaction", (done) => {
-//         let Session = new Sesh(1, 'rgraue@spu.edu');
-//         Session.createSession();
-//         Session.getSession( (ssid) => {
-//             tBody.ssid = ssid;
-//             chai.request(app)
-//             .post('/api/transaction')
-//             .set('Content-type', 'application/json')
-//             .send(tBody)
-//             .end( (err, res) => {
-//                 Session.deleteSession(ssid);
-//                 if(res.statusCode == 200){
-//                     done();
-//                 } else {
-//                     done(new Error(`${err}`));
-//                 }
-//             });
-//         });
-//     });
-// });
+    it("Should generate transaction", (done) => {
+        let Session = new Sesh(1, 'rgraue@spu.edu');
+        Session.createSession();
+        Session.getSession( (ssid) => {
+            tBody.ssid = ssid;
+            chai.request(app)
+            .post('/api/transaction')
+            .set('Content-type', 'application/json')
+            .send(tBody)
+            .end( (err, res) => {
+                Session.deleteSession(ssid);
+                if(res.statusCode == 200){
+                    console.log(res.text)
+                    done();
+                } else {
+                    done(new Error(`${err}`));
+                }
+            });
+        });
+    });
+});
 
 // describe("Test Portfolio", () => {
 //     it("should get balance", (done) => {
