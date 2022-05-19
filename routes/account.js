@@ -5,6 +5,7 @@ const pool = require('../modules/db');
 const bcrpyt = require('bcrypt');
 const Sessions = require('../modules/session');
 const Portfolio = require('../modules/portfolio');
+const Session = require('../modules/session');
 const rounds = 10;
 
 
@@ -184,6 +185,28 @@ router.post('/chart', jsonParser, (req, res, next) => {
             }
         });
     });
+});
+
+router.post('/cards', jsonParser, (req, res, next) => {
+    let payload = req.body;
+    let sesh = new Session();
+    sesh.getUser(payload.ssid, (uid) => {
+        let query =     `SELECT * FROM transaction
+                        INNER JOIN property USING (property_id)
+                        HAVING user_id = ${uid}`;
+
+        pool.query(query, (error, result, fields) => {
+            if (error) {
+                res.sendStatus(500);
+            } else {
+                let portfolio = new Portfolio(result);
+                portfolio.createCards( (data) => {
+                    res.send(JSON.stringify(data));
+                });
+
+            }
+        })
+    })
 });
 
 /**

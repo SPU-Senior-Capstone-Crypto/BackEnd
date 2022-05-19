@@ -3,8 +3,6 @@ const bodyParser = require('body-parser');
 const pool = require('../modules/db');
 const Session = require('../modules/session');
 const ethers = require('ethers');
-const { parseEther } = require('ethers/lib/utils');
-const Connection = require('mysql/lib/Connection');
 
 const router = express.Router();
 
@@ -29,9 +27,12 @@ router.post('/', jsonParser, (req, res, next) => {
     sesh.getUser( payload.ssid, async (uid) => {
         payload.uid = uid;
         try {
-            let x = await sell(payload);
-            res.send(x);
-            //transaction(payload);
+            if (payload.shares < 0){
+                let x = await sell(payload);
+                res.send(x);
+            } else {
+                transaction(payload);
+            }
         } catch (e) {
             console.log(e);
             res.statusCode = 502;
@@ -77,6 +78,5 @@ async function sell (payload) {
     let x = await signer.sendTransaction(tx);
     return x;
 }
-
 
 module.exports = router;

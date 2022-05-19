@@ -130,6 +130,36 @@ class Portfolio {
     }
 
     /**
+     * Gathers property meta data for properties owned by user
+     * @param {callback} fn callback function
+     */
+    createCards (fn) {
+        let props = this.getProperties();
+        if (props.length > 0){
+            let s = '(';
+            for (let i in props){
+                s += props[i] + ',';
+            }
+            s = s.slice(0, -1);
+            s += ')';
+
+            let query = `SELECT * FROM property
+                        INNER JOIN property_meta using (property_id)
+                        HAVING property_id in ${s}`;
+
+            pool.query(query, (error, result, fields) => {
+                if (error) {
+                    fn(error);
+                } else {
+                    fn(result);
+                }
+            });
+        } else {
+            fn(new Error('No properties'))
+        }
+    }
+
+    /**
      * gets all property id's owned by user
      * @returns array (set) of property_id's owned by profile
      */
