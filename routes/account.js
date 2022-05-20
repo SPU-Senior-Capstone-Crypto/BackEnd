@@ -209,6 +209,21 @@ router.post('/cards', jsonParser, (req, res, next) => {
     })
 });
 
+router.post('/transactions', jsonParser, (req, res, next) => {
+    let payload = req.body;
+    let sesh = new Session();
+    sesh.getUser(payload.ssid, (uid) => {
+        let query = `SELECT * FROM transaction WHERE user_id = ${uid}`;
+        pool.query(query, (error, result, fields) => {
+            if (error) {
+                res.sendStatus(500);
+            } else {
+                res.send(JSON.stringify(result));
+            }
+        })
+    })
+})
+
 /**
  * Verifies if user email exists in db.
  * Calls callback with true if exists and false if otherwise
