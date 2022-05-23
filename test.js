@@ -3,6 +3,7 @@ const chaiHttp = require('chai-http');
 const app = require('./app');
 const pool = require('./modules/db');
 const Sesh = require('./modules/session');
+const Portfolio = require('./modules/portfolio')
 
 chai.use(chaiHttp);
 chai.should();
@@ -100,13 +101,74 @@ describe('Test the Session capabilities.', () => {
     it ('Should simulate the lifecycle of a session', (done) => {
         Session.createSession();
         Session.getSession((ssid) => {
-            console.log(ssid);
+            chai.request(app)
+            .post('/api/account/cards')
+            .set('content-type', 'application/json')
+            .send(JSON.stringify({ssid:ssid}))
+            .end((err, res) => {
+                console.log(res.text);
+            });
             if (typeof ssid == "number"){
-                Session.deleteSession(ssid);
                 done();
             } else {
                 done(new Error("Wrong ssid"));
             }
         });
     });
-})
+    // fix for parallel session interactions
+    Session.getSession((ssid) => {
+        Session.deleteSession(ssid);
+    })
+});
+
+// describe('Test Transactions', () => {
+//     let tBody = {
+//         shares:-10,
+//         value:"0x38D7EA4C68000",
+//         hash:"testHash",
+//         sender:"testSender",
+//         recipient:"testRecipient",
+//         property_id:1
+//     }
+
+//     it("Should generate transaction", (done) => {
+//         let Session = new Sesh(1, 'rgraue@spu.edu');
+//         Session.createSession();
+//         Session.getSession( (ssid) => {
+//             tBody.ssid = ssid;
+//             chai.request(app)
+//             .post('/api/transaction')
+//             .set('Content-type', 'application/json')
+//             .send(tBody)
+//             .end( (err, res) => {
+//                 Session.deleteSession(ssid);
+//                 if(res.statusCode == 200){
+//                     console.log(res.text)
+//                     done();
+//                 } else {
+//                     done(new Error(`${err}`));
+//                 }
+//             });
+//         });
+//     });
+// });
+
+// describe("Test Portfolio", () => {
+//     it("should get balance", (done) => {
+//         pool.query(
+//             `SELECT * FROM transaction
+//             INNER JOIN property USING (property_id)
+//             HAVING user_id = 1;`,
+//             (err, res, fields) => {
+//                 if (err){
+//                     done(new Error(err))
+//                 }
+//                 let p = new Portfolio(res);
+//                 let b = p.createChart((r) => {
+//                     console.log(JSON.stringify(r));
+//                 });
+//                 done();
+//             }
+//         );
+//     });
+// });

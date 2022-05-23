@@ -46,6 +46,21 @@ class Session {
     }
 
     /**
+     * Gets the sessions user id goven a valid ssid
+     * @param {number} ssid of session to find user_id associated with
+     * @param {callback} fn callback function. -1 if error or not found, or user_id if found
+     */
+    getUser (ssid, fn) {
+        let query = `SELECT * FROM sessions WHERE ssid = ${ssid}`
+        pool.query(query, (error, result, fields) => {
+            if (error){
+                fn(-1);
+            }
+            fn(result[0].user_id);
+        });
+    }
+
+    /**
      * 
      * @param {number} ssid user session id
      * @param {callback} fn callback function to interact with it being a valid session or not
