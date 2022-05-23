@@ -29,7 +29,7 @@ router.post('/', jsonParser, (req, res, next) => {
         try {
             if (payload.shares < 0){
                 let x = await sell(payload);
-                res.send(x);
+                res.send(JSON.stringify(x));
             } else {
                 transaction(payload);
             }
@@ -61,6 +61,13 @@ function transaction (payload){
     });
 }
 
+/**
+ * Mimics the sell of a number of shares
+ * Transfers the necessary eth from parity wallet to user's
+ * Async using ethers on ropsten network with default provider
+ * @param {object} payload all transaction data from front end
+ * @returns transaction object once complete
+ */
 async function sell (payload) {
     const provider = new ethers.getDefaultProvider('ropsten');
     const pWallet = new ethers.Wallet(process.env.WALLET);
@@ -68,15 +75,34 @@ async function sell (payload) {
 
     const tx = {
         from : pWallet.address,
-        to : '0x846C5B8DA1E9D9d4F1b68397bb55EB43E18db800',
-        value:ethers.utils.parseUnits('.01', 'ether'),
+        to : payload.r,
+        value: payload.value,
         gasPrice : provider.getGasPrice(),
         gasLimit : ethers.utils.hexlify(100000),
         nonce : provider.getTransactionCount(pWallet.address, 'latest')
     }
 
     let x = await signer.sendTransaction(tx);
-    return x;
+
+    let query = `
+        INSERT INTO transaction (user_id, property_id, shares, principle, hash, sender, recipient) 
+        Values (
+            '${payload.uid}',
+            '${payload.property_id}',
+            '${payload.shares}',
+            '${payload.value}',
+            '${x.hash}',
+            '${pWallet.address}',
+            '${payload.r}'
+        );
+    `;
+    pool.query(query, (error, result, fields) => {
+        if (error){
+            throw(error);
+        }
+    });
+
+    return tx;
 }
 
 module.exports = router;

@@ -13,6 +13,22 @@ class Portfolio {
         }
         return result / 1e18;
     }
+
+    /**
+     * Finds the amount of shares owned in the portfolio
+     *  with the given property id
+     * @param {Number} id Property id
+     * @returns Number of shares owned
+     */
+    getShares (id) {
+        let n = 0;
+        for (let i in this.data){
+            if (this.data[i].property_id == id){
+                n += this.data[i].shares;
+            }
+        }
+        return n
+    }
     // {
     //     type: 'line',
     //     data: {

@@ -152,7 +152,7 @@ router.post('/verify', jsonParser, (req, res, next) => {
         } else {
             res.sendStatus(404);
         }
-    })
+    });
 });
 
 router.post('/logout', jsonParser, (req, res, next) => {
@@ -205,8 +205,8 @@ router.post('/cards', jsonParser, (req, res, next) => {
                 });
 
             }
-        })
-    })
+        });
+    });
 });
 
 router.post('/transactions', jsonParser, (req, res, next) => {
@@ -220,9 +220,25 @@ router.post('/transactions', jsonParser, (req, res, next) => {
             } else {
                 res.send(JSON.stringify(result));
             }
-        })
-    })
-})
+        });
+    });
+});
+
+router.post('/shares/:id', jsonParser, (req, res, next) => {
+    let payload = req.body;
+    let sesh = new Session();
+    sesh.getUser(payload.ssid, (uid) => {
+        let query = `SELECT * FROM transaction WHERE user_id = ${uid}`;
+        pool.query(query, (error, result, fields) => {
+            if (error){
+                res.sendStatus(500);
+            } else {
+                let portfolio = new Portfolio(result);
+                res.send(JSON.stringify({shares:portfolio.getShares(req.params.id)}));
+            }
+        });
+    });
+});
 
 /**
  * Verifies if user email exists in db.
