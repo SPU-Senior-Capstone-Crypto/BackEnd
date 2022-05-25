@@ -133,8 +133,11 @@ class Portfolio {
                         labels : labels,
                         datasets : [
                             {
-                                label : 'money over time',
-                                data : data
+                                label : 'Eth Balance',
+                                data : data,
+                                tension : 0.1,
+                                borderWidth : 5,
+                                grace : '%20'
                             }
                         ]
                     }
