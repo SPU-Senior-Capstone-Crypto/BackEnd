@@ -25,6 +25,10 @@ router.post('/', jsonParser, (req, res, next) => {
     let payload = req.body;
     let sesh = new Session();
     sesh.getUser( payload.ssid, async (uid) => {
+        if (uid < 0){
+            res.sendStatus(500);
+            return;
+        }
         payload.uid = uid;
         try {
             if (payload.shares < 0){
@@ -32,10 +36,11 @@ router.post('/', jsonParser, (req, res, next) => {
                 res.send(JSON.stringify(x));
             } else {
                 transaction(payload);
+                res.sendStatus(200);
             }
         } catch (e) {
             console.log(e);
-            res.statusCode = 502;
+            res.sendStatus(500);
         }
     });
 });
