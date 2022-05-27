@@ -21,7 +21,7 @@ router.get('/all', (req, res, next) => {
 
 router.get('/', (req, res, next) => {
     let query = `SELECT * FROM property
-                INNER JOIN using (property_id)
+                INNER JOIN property_meta using (property_id);
                 `;
 
     pool.query(query, (error, result, fields) => {
