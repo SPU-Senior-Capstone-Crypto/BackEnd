@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser')
 const pool = require('../modules/db');
-const Pool = require('mysql/lib/Pool');
 
 
 router.get('/', (req, res, next) => {
