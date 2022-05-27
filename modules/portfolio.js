@@ -133,10 +133,20 @@ class Portfolio {
                         labels : labels,
                         datasets : [
                             {
-                                label : 'money over time',
-                                data : data
+                                label : 'Eth Balance',
+                                data : data,
+                                tension : 0.1,
+                                borderWidth : 4,
                             }
                         ]
+                    },
+                    options : {
+                        scales : {
+                            y : {
+                                beginAtZero : true,
+                                grace : data[data.length - 1] * 1.2
+                            }
+                        }
                     }
                     
                 }   

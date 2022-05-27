@@ -19,6 +19,20 @@ router.get('/all', (req, res, next) => {
     });
 });
 
+router.get('/', (req, res, next) => {
+    let query = `SELECT * FROM property
+                INNER JOIN using (property_id)
+                `;
+
+    pool.query(query, (error, result, fields) => {
+        if (error){
+            res.sendStatus(500);
+        } else {
+            res.send(JSON.stringify(result));
+        }
+    });
+});
+
 // retrieves property with given id (/api/property/<prop_id>)
 router.get('/:id', (req, res, next) => {
     if (req.params.id) {
