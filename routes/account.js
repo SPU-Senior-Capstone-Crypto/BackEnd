@@ -95,7 +95,7 @@ router.post('/log', jsonParser, (req, res, next) => {
         }
         if (result.length === 0) {       // if no mathcing email for an acount
             // No valid username
-            res.send('No valid username');
+            res.sendStatus(502);
         } else {                        // if mathcing email check pswd
             dbUser = result[0];
             bcrpyt.compare(payload.pswd, dbUser.pswd, (err, r) => {    // compares the pswd hash and text given
@@ -111,7 +111,7 @@ router.post('/log', jsonParser, (req, res, next) => {
                         }
                     });
                 } else {
-                    res.send("Incorrect Login info");
+                    res.sendStatus(502);
                 }
                 return;
             });
@@ -202,7 +202,11 @@ router.post('/chart', jsonParser, (req, res, next) => {
             } else {
                 let portfolio = new Portfolio(result);
                 portfolio.createChart( (data) => {
-                    res.send(data);
+                    if (data.length == 0){
+                        res.sendStatus(502);
+                    } else {
+                        res.send(data);
+                    }
                 });
             }
         });

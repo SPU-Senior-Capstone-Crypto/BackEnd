@@ -104,6 +104,9 @@ class Portfolio {
      * @param {callback} fn callback function
      */
     createChart (fn) {
+        if (this.data.length == 0){
+            fn([]);
+        }
         let properties = this.getProperties();
 
         let s = ""
