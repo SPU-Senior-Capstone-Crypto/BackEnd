@@ -127,7 +127,9 @@ class Portfolio {
                 let data = this.#calcHistory(range, res);   // data for chart (balance vs time)
                 let labels = [];
                 for (let i in range){
-                    labels.push(i);
+                    let a = split('-');
+                    let n = Number(a[0]) + 1;
+                    labels.push(n + "-" + a[1]);
                 }
 
                 let r = {
@@ -299,7 +301,7 @@ class Portfolio {
         range['' + curr.getMonth() + "-" + curr.getFullYear()] = [];
         // allocate transaactions under their respective month/year
         for (let i in this.data){
-            let t = '' + this.data[i].date.getMonth() + "-" + this.data[i].date.getFullYear()
+            let t = '' + this.data[i].date.getMonth() + 1 + "-" + this.data[i].date.getFullYear()
             if (!range[t]){ // if new month
                 range[t] = [];
             }
