@@ -127,7 +127,7 @@ class Portfolio {
                 let data = this.#calcHistory(range, res);   // data for chart (balance vs time)
                 let labels = [];
                 for (let i in range){
-                    let a = split('-');
+                    let a = range[i].split('-');
                     let n = Number(a[0]) + 1;
                     labels.push(n + "-" + a[1]);
                 }
