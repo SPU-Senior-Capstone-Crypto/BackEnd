@@ -95,7 +95,7 @@ router.post('/log', jsonParser, (req, res, next) => {
         }
         if (result.length === 0) {       // if no mathcing email for an acount
             // No valid username
-            res.sendStatus(500);
+            res.sendStatus(404);
         } else {                        // if mathcing email check pswd
             dbUser = result[0];
             bcrpyt.compare(payload.pswd, dbUser.pswd, (err, r) => {    // compares the pswd hash and text given
@@ -107,11 +107,11 @@ router.post('/log', jsonParser, (req, res, next) => {
                         if (ssid) {
                             res.send(`${ssid}`);
                         } else {
-                            res.sendStatus(504);
+                            res.sendStatus(404);
                         }
                     });
                 } else {
-                    res.sendStatus(500);
+                    res.sendStatus(404);
                 }
                 return;
             });
@@ -133,7 +133,7 @@ router.put('/create', jsonParser, (req, res, next) => {
     let payload = req.body;
     user_exist(payload.email, (result) => {
         if (result) {    // email already exists
-            res.sendStatus(409);
+            res.sendStatus(404);
         } else {        // create user
             if (payload.pswd) {
                 bcrpyt.genSalt(rounds, (err, salt) => { // gen salt
