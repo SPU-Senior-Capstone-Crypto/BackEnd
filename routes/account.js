@@ -95,7 +95,7 @@ router.post('/log', jsonParser, (req, res, next) => {
         }
         if (result.length === 0) {       // if no mathcing email for an acount
             // No valid username
-            res.sendStatus(502);
+            res.sendStatus(500);
         } else {                        // if mathcing email check pswd
             dbUser = result[0];
             bcrpyt.compare(payload.pswd, dbUser.pswd, (err, r) => {    // compares the pswd hash and text given
@@ -111,7 +111,7 @@ router.post('/log', jsonParser, (req, res, next) => {
                         }
                     });
                 } else {
-                    res.sendStatus(502);
+                    res.sendStatus(500);
                 }
                 return;
             });
