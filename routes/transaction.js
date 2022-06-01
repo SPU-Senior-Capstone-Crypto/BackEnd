@@ -107,7 +107,7 @@ async function sell (payload) {
         }
     });
 
-    return tx;
+    return x;
 }
 
 module.exports = router;
