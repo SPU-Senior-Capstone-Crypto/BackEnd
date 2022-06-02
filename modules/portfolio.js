@@ -138,7 +138,6 @@ class Portfolio {
                         labels : labels,
                         datasets : [
                             {
-                                range : range,
                                 label : 'Eth Balance',
                                 data : data,
                                 tension : 0.1,
@@ -155,7 +154,8 @@ class Portfolio {
                         }
                     }
                     
-                }   
+                } 
+                //fn(data);  
                 fn(r);
             }
         }); 
@@ -242,26 +242,27 @@ class Portfolio {
             r[p][t] = x;
         }
 
-        let data = [];
+        let data = {};
         let index = 0;
 
         // sum value of all properties by time series
         for (let i in r){
-            index = 0;
             for (let j in r[i]){
-                if (j != 'shares'){
-                    if (index >= data.length){  // if first time through array
-                        data.push(r[i][j]);
-                        index++;
-                    } else {
-                        data[index] += r[i][j]; // add to existing total
-                        index++;
-                    }
+                if (data[j] && j != "shares"){
+                    data[j] += r[i][j];
+                } else if (j != "shares") {
+                    data[j] = r[i][j];
                 }
             }
             
         }
-        return data;
+
+        let balances = [];
+        for (let i in data){
+            balances.push(Math.ceil(data[i] * 1000) / 1000);
+        }
+
+        return balances;
     }
 
     // 50000000000000000

@@ -68,7 +68,7 @@ describe("Parity Account Service Tests", () => {
         .set('content-type', 'application/json')
         .send(JSON.stringify(data))
         .end((err, res) => {
-            if (res.statusCode === 409){
+            if (res.statusCode === 404){
                 done();
                 return;
             } else {
@@ -102,7 +102,7 @@ describe('Test the Session capabilities.', () => {
         Session.createSession();
         Session.getSession((ssid) => {
             chai.request(app)
-            .post('/api/account/cards')
+            .post('/api/account/chart')
             .set('content-type', 'application/json')
             .send(JSON.stringify({ssid:ssid}))
             .end((err, res) => {
