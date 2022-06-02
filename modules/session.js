@@ -37,8 +37,11 @@ class Session {
             let query = `SELECT ssid FROM sessions WHERE user_id = ${this.uid};`;
             pool.query(query, (error, result, fields) => {
                 if (error) {
-
-                } else {
+                    fn(-1);
+                } 
+                if (result.length == 0){
+                    fn(-1);
+                }else {
                     fn(result[result.length - 1].ssid);
                 }
             });
@@ -56,7 +59,12 @@ class Session {
             if (error){
                 fn(-1);
             }
-            fn(result[0].user_id);                  //BUGBUG if no result then error
+            if (result.length == 0){    // no ssid/uid combo
+                fn(-1);
+            } else {
+                fn(result[0].user_id); 
+            }
+
         });
     }
 
