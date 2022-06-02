@@ -56,7 +56,7 @@ class Session {
             if (error){
                 fn(-1);
             }
-            fn(result[0].user_id);                  //BUGBUG if no result then error
+            fn(result[0].user_id);                  //BUGBUG if no result then error this bug
         });
     }
 
