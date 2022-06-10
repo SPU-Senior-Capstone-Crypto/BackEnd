@@ -21,28 +21,6 @@ router.get('/', (req, res, next) => {
     res.send("HIT!")
 });
 
-router.get('/testing', (req, res, next) => {
-    let query = `SELECT * FROM user`;
-
-    pool.getConnection((err, connection) => {
-        connection.query(query, (error, result, fields) => {
-            connection.release();
-            if (error) {
-                // if errors
-                console.log(error);
-            } else {
-                // returs 404 if length = 0, or if no mathcing id
-                if (result.length == 0) {
-                    res.status(404).send("not hit");
-                } else {
-                    // returns stringified result
-                    // returns in response.text
-                    res.send(JSON.stringify(result));
-                }
-            }
-        });
-    });
-});
 
 /**
  * Deletes a user's account
